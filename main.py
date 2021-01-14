@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, abort
+from flask_cors import CORS
 
 from static_bgs import bgs
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/')
@@ -12,21 +14,16 @@ def show_docs():
 
 @app.route('/boardgames')
 def get_all_boardgames():
-    response = jsonify(bgs)
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
+    return jsonify(bgs)
 
 
 @app.route('/boardgames/<int:bg_id>')
 def get_boardgame(bg_id):
     try:
         bg = bgs[bg_id]
-        response = jsonify(bg)
+        return jsonify(bg)
     except IndexError:
-        response = abort(404)
-
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
+        return abort(404)
 
 
 if __name__ == '__main__':
