@@ -12,16 +12,21 @@ def show_docs():
 
 @app.route('/boardgames')
 def get_all_boardgames():
-    return jsonify(bgs)
+    response = jsonify(bgs)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 @app.route('/boardgames/<int:bg_id>')
 def get_boardgame(bg_id):
     try:
         bg = bgs[bg_id]
-        return jsonify(bg)
+        response = jsonify(bg)
     except IndexError:
-        return abort(404)
+        response = abort(404)
+
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 if __name__ == '__main__':
