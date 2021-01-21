@@ -9,6 +9,8 @@ verify_ssl = true
 flask = "*"
 gunicorn = "*"
 flask-cors = "*"
+flask-sqlalchemy = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.6"
