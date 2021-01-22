@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from os import environ
@@ -22,16 +22,23 @@ def show_docs():
 @app.route('/boardgames')
 def get_all_boardgames():
     """Return list of dicts with all boardgames data."""
-    games_dict = [game.to_dict() for game in Game.query.order_by(Game.id)]
-    for game in games_dict:
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 20, type=int)
+    games_paginated = Game.query.order_by(Game.id).paginate(page=page, per_page=limit)
+
+    payload = [game.to_dict() for game in games_paginated.items]
+    for game in payload:
         game['rank'] = game['id']  # to be replaced with calculating rate based on users score
-    return jsonify(games_dict)
+
+    response = jsonify(payload)
+    response.headers['X-Total-Count'] = games_paginated.total
+    return response
 
 
 @app.route('/boardgames/<int:bg_id>')
 def get_boardgame(bg_id):
     """Return dict with boardgame data based on given id."""
     game = Game.query.filter_by(id=bg_id).first_or_404()
-    game_dict = game.to_dict()
-    game_dict['rank'] = game_dict['id']  # to be replaced with calculating rate based on users score
-    return jsonify(game_dict)
+    payload = game.to_dict()
+    payload['rank'] = payload['id']  # to be replaced with calculating rate based on users score
+    return jsonify(payload)
