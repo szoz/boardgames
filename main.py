@@ -22,12 +22,16 @@ def show_docs():
 @app.route('/boardgames')
 def get_all_boardgames():
     """Return list of dicts with all boardgames data."""
-    query_bgs = [game.to_dict() for game in Game.query.all()]
-    return jsonify(query_bgs)
+    games_dict = [game.to_dict() for game in Game.query.order_by(Game.id)]
+    for game in games_dict:
+        game['rank'] = game['id']  # to be replaced with calculating rate based on users score
+    return jsonify(games_dict)
 
 
 @app.route('/boardgames/<int:bg_id>')
 def get_boardgame(bg_id):
     """Return dict with boardgame data based on given id."""
     game = Game.query.filter_by(id=bg_id).first_or_404()
-    return jsonify(game.to_dict())
+    game_dict = game.to_dict()
+    game_dict['rank'] = game_dict['id']  # to be replaced with calculating rate based on users score
+    return jsonify(game_dict)
