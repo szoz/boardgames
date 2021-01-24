@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from os import environ
 
 from models import Game
@@ -16,7 +17,7 @@ db = SQLAlchemy(app)
 @app.route('/')
 def show_docs():
     """Main page, returns string with available endpoints."""
-    return 'Available endpoint: /boardgames, /boardgames/<id>'
+    return 'Available endpoints: /categories, /boardgames, /boardgames/<id>'
 
 
 @app.route('/boardgames')
@@ -24,8 +25,14 @@ def get_all_boardgames():
     """Return list of dicts with all boardgames data."""
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 20, type=int)
-    games_paginated = Game.query.order_by(Game.id).paginate(page=page, per_page=limit)
 
+    if request.args.getlist('category'):
+        categories = [category.capitalize() for category in request.args.getlist('category')]
+        games = Game.query.filter(Game.categories.overlap(categories)).order_by(Game.id)
+    else:
+        games = Game.query.order_by(Game.id)
+
+    games_paginated = games.paginate(page=page, per_page=limit)
     payload = [game.to_dict() for game in games_paginated.items]
     for game in payload:
         game['rank'] = game['id']  # to be replaced with calculating rate based on users score
@@ -41,4 +48,12 @@ def get_boardgame(bg_id):
     game = Game.query.filter_by(id=bg_id).first_or_404()
     payload = game.to_dict()
     payload['rank'] = payload['id']  # to be replaced with calculating rate based on users score
+    return jsonify(payload)
+
+
+@app.route('/categories')
+def get_al_categories():
+    """Return list of all boardgames categories."""
+    categories = db.session.query(func.unnest(Game.categories)).distinct()
+    payload = [category[0] for category in categories]
     return jsonify(payload)
