@@ -26,11 +26,12 @@ def get_all_boardgames():
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 20, type=int)
 
+    sort_attribute = Game.name if request.args.get('sort_by') == 'name' else Game.id  # to be replaced with sort by rate
     if request.args.getlist('category'):
         categories = [category.capitalize() for category in request.args.getlist('category')]
-        games = Game.query.filter(Game.categories.overlap(categories)).order_by(Game.id)
+        games = Game.query.filter(Game.categories.overlap(categories)).order_by(sort_attribute)
     else:
-        games = Game.query.order_by(Game.id)
+        games = Game.query.order_by(sort_attribute)
 
     games_paginated = games.paginate(page=page, per_page=limit)
     payload = [game.to_dict() for game in games_paginated.items]

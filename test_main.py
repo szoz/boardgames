@@ -79,3 +79,16 @@ def test_boardgames_categories(client):
         assert categories[5] in record['categories']
     for record in client.get(f'/boardgames?category={categories[1]}&category={categories[5]}').get_json():
         assert (categories[1] in record['categories']) or (categories[5] in record['categories'])
+
+
+def test_boardgames_sort(client):
+    total = int(client.get('/boardgames').headers['X-Total-Count'])
+    ids = [record['id'] for record in client.get('/boardgames').get_json()]
+    total_ids = [record['id'] for record in client.get(f'/boardgames?limit={total}').get_json()]
+    names = [record['name'] for record in client.get('/boardgames?sort_by=name').get_json()]
+    total_names = [record['name'] for record in client.get(f'/boardgames?limit={total}&sort_by=name').get_json()]
+
+    assert ids == sorted(ids)
+    assert total_ids == sorted(total_ids)
+    assert names == sorted(names, key=lambda char: char.replace(':', ''))
+    assert total_names == sorted(total_names, key=lambda char: char.replace(':', ''))
