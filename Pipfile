@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pytest = "*"
 
 [packages]
 flask = "*"
@@ -11,6 +12,7 @@ gunicorn = "*"
 flask-cors = "*"
 flask-sqlalchemy = "*"
 psycopg2-binary = "*"
+jsonschema = "*"
 
 [requires]
 python_version = "3.6"
