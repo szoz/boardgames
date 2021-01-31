@@ -26,14 +26,22 @@ def get_all_boardgames():
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 20, type=int)
 
-    sort_attribute = Game.name if request.args.get('sort_by') == 'name' else Game.id  # to be replaced with sort by rate
+    games = Game.query
+
+    if request.args.getlist('search'):
+        if len(request.args['search']) < 3:
+            return jsonify({'error': 'Search text is too short.'}), 400
+        search = f'%{request.args["search"]}%'
+        games = games.filter(Game.name.ilike(search))
+
     if request.args.getlist('category'):
         categories = [category.capitalize() for category in request.args.getlist('category')]
-        games = Game.query.filter(Game.categories.overlap(categories)).order_by(sort_attribute)
-    else:
-        games = Game.query.order_by(sort_attribute)
+        query_filter = Game.categories.overlap(categories)
+        games = games.filter(query_filter)
 
-    games_paginated = games.paginate(page=page, per_page=limit)
+    sort_attribute = Game.name if request.args.get('sort_by') == 'name' else Game.id  # to be replaced with sort by rate
+
+    games_paginated = games.order_by(sort_attribute).paginate(page=page, per_page=limit)
     payload = [game.to_dict() for game in games_paginated.items]
     for game in payload:
         game['rank'] = game['id']  # to be replaced with calculating rate based on users score

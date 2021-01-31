@@ -82,6 +82,7 @@ def test_boardgames_categories(client):
 
 
 def test_boardgames_sort(client):
+    """Test boardgames endpoint sort by ids and names."""
     total = int(client.get('/boardgames').headers['X-Total-Count'])
     ids = [record['id'] for record in client.get('/boardgames').get_json()]
     total_ids = [record['id'] for record in client.get(f'/boardgames?limit={total}').get_json()]
@@ -92,3 +93,22 @@ def test_boardgames_sort(client):
     assert total_ids == sorted(total_ids)
     assert names == sorted(names, key=lambda char: char.replace(':', ''))
     assert total_names == sorted(total_names, key=lambda char: char.replace(':', ''))
+
+
+def test_boardgames_search(client):
+    """Test boardgames endpoint search by names (picked names with different repeatability)."""
+    total = int(client.get('/boardgames').headers['X-Total-Count'])
+    names = [record['name'] for record in client.get(f'/boardgames?limit={total}').get_json()]
+    test_words = [word.strip(':()')
+                  for word in names[3].split() + names[4].split() + names[5].split()
+                  if len(word.strip(':()')) > 3]
+
+    assert client.get('/boardgames?search=a').status_code == 400
+    assert client.get('/boardgames?search=a').get_json().get('error')
+    assert client.get('/boardgames?search=ab').status_code == 400
+    assert client.get('/boardgames?search=ab').get_json().get('error')
+    assert client.get('/boardgames?search=abcdefghijkl').get_json() == []
+    for word in test_words:
+        results = client.get(f'/boardgames?search={word}').get_json()
+        for result in results:
+            assert word.lower() in names[result['id'] - 1].lower()
