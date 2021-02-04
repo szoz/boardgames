@@ -1,13 +1,15 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from os import environ
+from flasgger import Swagger
 
 from models import Game
 
 app = Flask(__name__)
 CORS(app)
+swag = Swagger(app, template_file='docs/template.yml', config={"openapi": "3.0.2"}, merge=True)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -16,8 +18,8 @@ db = SQLAlchemy(app)
 
 @app.route('/')
 def show_docs():
-    """Main page, returns string with available endpoints."""
-    return 'Available endpoints: /categories, /boardgames, /boardgames/<id>'
+    """Main page, redirects to API docs."""
+    return redirect('/apidocs')
 
 
 @app.route('/boardgames')
@@ -61,7 +63,7 @@ def get_boardgame(bg_id):
 
 
 @app.route('/categories')
-def get_al_categories():
+def get_all_categories():
     """Return list of all boardgames categories."""
     categories = db.session.query(func.unnest(Game.categories)).distinct()
     payload = [category[0] for category in categories]

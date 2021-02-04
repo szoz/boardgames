@@ -13,6 +13,7 @@ flask-cors = "*"
 flask-sqlalchemy = "*"
 psycopg2-binary = "*"
 jsonschema = "*"
+flasgger = "*"
 
 [requires]
 python_version = "3.6"
