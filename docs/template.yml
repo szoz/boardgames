@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: Boardgames
-  description: 'This is a simple API with information about best boardgames.'
+  description: 'This is a simple API about the best boardgames.'
   version: '1.0'
 externalDocs:
   description: Github page
@@ -33,6 +33,7 @@ paths:
         in: query
         description: Games limit per page
         schema:
+          type: integer
           minimum: 1
           default: 20
       - name: search
@@ -44,7 +45,7 @@ paths:
           example: mars
       - name: category
         in: query
-        description: Get Games with one of given categories
+        description: Get Games from one of the categories listed
         style: form
         explode: true
         schema:
