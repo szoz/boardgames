@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
 
 from .models import BoardGame
 
@@ -13,11 +12,11 @@ def serialize(object_):
 
 def home(request):
     """Return response with text greeting."""
-    return HttpResponse('Hello to BoardGames')
+    return render(request, 'home.html')
 
 
 def board_games_list(request):
     """Return response with board games list view."""
-    payload = [serialize(bg) for bg in BoardGame.objects.all()]
+    bgs = BoardGame.objects.all()
 
-    return JsonResponse(payload, safe=False)
+    return render(request, 'boardgames.html', {'bgs': bgs})
