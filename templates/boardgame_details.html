@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Board games {{ bg.name }}{% endblock %}
+
+{% block content %}
+<div class="card text-white bg-dark mb-3">
+  <img src="https://via.placeholder.com/800x400" class="card-img-top" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">{{ bg.name }} <span class="badge bg-secondary">{{ bg.year }}</span></h5>
+    <p class="card-text">{{ bg.description }}</p>
+    <a href="{% url 'games:list' %}" class="card-link">Back to list</a>
+  </div>
+</div>
+{% endblock %}

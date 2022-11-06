@@ -10,6 +10,7 @@
         <th scope="col">Name</th>
         <th scope="col">Year</th>
         <th scope="col">Description</th>
+        <th scope="col">Details</th>
       </tr>
     </thead>
     <tbody>
@@ -19,6 +20,11 @@
         <td>{{ bg.name }}</td>
         <td>{{ bg.year }}</td>
         <td>{{ bg.description }}</td>
+        <td>
+          <a href="{% url 'games:details' id_=bg.id %}" type="button" class="btn btn-secondary">
+            <img src="https://icons.getbootstrap.com/assets/icons/chevron-right.svg" alt="&#xF285;">
+          </a>
+        </td>
       </tr>
     {% endfor %}
     </tbody>
